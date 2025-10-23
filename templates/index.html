@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Metadata Fetcher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: "Poppins", Arial, sans-serif;
+      background: linear-gradient(135deg, #eef2f3, #8e9eab);
+      padding: 40px;
+      text-align: center;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #222;
+      margin-bottom: 30px;
+    }
+    input {
+      width: 70%;
+      max-width: 400px;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      transition: border 0.3s;
+    }
+    input:focus {
+      border-color: #007bff;
+    }
+    button {
+      padding: 12px 25px;
+      background: #007bff;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      margin-left: 10px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    textarea {
+      width: 90%;
+      max-width: 700px;
+      height: 400px;
+      margin-top: 20px;
+      font-size: 14px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: none;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎥 YouTube Metadata Fetcher</h1>
+
+  <input id="video_id" type="text" placeholder="Enter YouTube Video ID" />
+  <button onclick="fetchMetadata()">Fetch</button>
+
+  <br />
+  <textarea id="output" readonly placeholder="Metadata will appear here..."></textarea>
+  <br />
+  <button onclick="copyOutput()">Copy All</button>
+
+  <script>
+    async function fetchMetadata() {
+      const video_id = document.getElementById("video_id").value.trim();
+      const outputBox = document.getElementById("output");
+
+      if (!video_id) {
+        alert("⚠️ Please enter a Video ID");
+        return;
+      }
+
+      outputBox.value = "Fetching metadata...";
+      try {
+        // ✅ Use absolute URL dynamically (works for Replit hosted URLs)
+        const res = await fetch(window.location.origin + "/fetch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ video_id })
+        });
+
+        const data = await res.json();
+
+        if (data.result) {
+          outputBox.value = data.result;
+        } else {
+          outputBox.value = "❌ Error: " + (data.error || "Unknown error");
+        }
+      } catch (err) {
+        outputBox.value = "⚠️ Failed to connect to server: " + err.message;
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById("output");
+      output.select();
+      document.execCommand("copy");
+      alert("✅ Copied to clipboard!");
+    }
+  </script>
+</body>
+</html>
